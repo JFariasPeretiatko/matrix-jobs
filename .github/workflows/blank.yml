@@ -25,3 +25,10 @@ jobs:
     steps:
       - name: Run task
         run: echo "Running task ${{ matrix.task }}"
+  clear-up:
+    needs: dynamic-jobs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear up
+        run: "all good"
+    
