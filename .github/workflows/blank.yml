@@ -1,0 +1,27 @@
+name: CI
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ setps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Generate jobs
+        id: set-matrix
+        run: echo "::set-output name=matrix::{\"include\":[{\"task\":\"build\"},{\"task\":\"test\"}]}"
+  
+  dynamic-jobs:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.build.outputs.matrix) }}
+    steps:
+      - name: Run task
+        run: echo "Running task ${{ matrix.task }}"
