@@ -23,6 +23,7 @@ jobs:
           echo "files<<${delimiter}" >> $GITHUB_OUTPUT
           echo "$files" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
   dynamic-jobs:
     needs: build
     runs-on: ubuntu-latest
