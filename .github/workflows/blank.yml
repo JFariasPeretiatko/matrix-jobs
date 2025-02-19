@@ -16,10 +16,13 @@ jobs:
       - name: Generate jobs
         id: set-matrix
         run: |
+          delimiter="$(openssl rand -hex 8)"
           touch schematics-features-{1..9}.json
           files=$(ls *.json | jq -R -s -c 'split("\n")[:-1]')
           echo "Files: $files"
-          echo "files=$files" >> $GITHUB_OUTPUT  
+          echo "files<<${delimiter}" >> $GITHUB_OUTPUT
+          echo "$files" >> $GITHUB_OUTPUT
+          echo "${delimiter}" >> $GITHUB_OUTPUT
   dynamic-jobs:
     needs: build
     runs-on: ubuntu-latest
