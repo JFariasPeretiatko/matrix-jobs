@@ -15,16 +15,17 @@ jobs:
     steps:
       - name: Generate jobs
         id: set-matrix
-        run: echo "::set-output name=matrix::{\"include\":[{\"task\":\"build\"},{\"task\":\"test\"}]}"
+        run: echo "matrix=\"{\"include\":[{\"task\":\"build\"},{\"task\":\"test\"}]}\"" >> $GITHUB_OUTPUT
   
   dynamic-jobs:
     needs: build
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson(needs.build.outputs.matrix) }}
+      matrix:
+        file: ${{ fromJson(needs.build.outputs.matrix) }}
     steps:
       - name: Run task
-        run: echo "Running task ${{ matrix.task }}"
+        run: echo "Running task ${{ matrix.file }}"
   clear-up:
     needs: dynamic-jobs
     runs-on: ubuntu-latest
