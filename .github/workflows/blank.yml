@@ -18,7 +18,7 @@ jobs:
         run: |
           delimiter="$(openssl rand -hex 8)"
           touch schematics-features-{1..9}.json
-          echo "::set-output name=matrix::$(echo '{"include": '$(jq -n --argjson files "$(ls *.json | jq -R -s -c 'split("\n")[:-1]')" '$files')'}')"
+          echo "::set-output name=matrix::$(echo '\"{"include": '$(jq -n --argjson files "$(ls *.json | jq -R -s -c 'split("\n")[:-1]')" '$files')'}\"')"
   dynamic-jobs:
     needs: build
     runs-on: ubuntu-latest
@@ -26,7 +26,7 @@ jobs:
       matrix: ${{ fromJson(needs.build.outputs.matrix) }}
     steps:
       - name: Run task
-        run: echo "Running task ${{ matrix.file }}"
+        run: echo "Running task ${{ matrix.include }}"
   clear-up:
     needs: dynamic-jobs
     runs-on: ubuntu-latest
