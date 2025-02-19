@@ -23,8 +23,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        file: ${{ fromJson(needs.build.outputs.files) }}
+      matrix: ${{ fromJson(needs.build.outputs.matrix) }}
     steps:
       - name: Run task
         run: echo "Running task ${{ matrix.file }}"
