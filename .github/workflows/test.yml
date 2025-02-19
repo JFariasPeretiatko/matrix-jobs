@@ -1,0 +1,66 @@
+name: Dynamic Matrix from Random Files
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-files:
+    runs-on: ubuntu-latest
+    outputs:
+      file_count: ${{ steps.count-files.outputs.total }}
+      file_list: ${{ steps.list-files.outputs.files }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate random JSON files
+        run: |
+          mkdir -p data
+          file_count=$((RANDOM % 9 + 2))  # Random number between 2 and 10
+          echo "Generating $file_count JSON files..."
+          for i in $(seq 1 $file_count); do
+            echo "{\"id\": $i, \"value\": \"random_$RANDOM\"}" > "data/file_$i.json"
+          done
+
+      - name: Count generated files
+        id: count-files
+        run: |
+          total=$(ls data | wc -l)
+          echo "Total files: $total"
+          echo "total=$total" >> "$GITHUB_OUTPUT"
+
+      - name: List generated files
+        id: list-files
+        run: |
+          files=$(ls data | jq -R -s -c 'split("\n")[:-1]')
+          echo "Files: $files"
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Upload JSON files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: json-files
+          path: data/
+
+  process-files:
+    needs: generate-files
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.generate-files.outputs.file_list) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download JSON files
+        uses: actions/download-artifact@v4
+        with:
+          name: json-files
+          path: data/
+
+      - name: Process file
+        run: |
+          echo "Processing file: data/${{ matrix.file }}"
+          cat "data/${{ matrix.file }}"
